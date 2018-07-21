@@ -32,8 +32,7 @@ export function createNode() {
 }
 
 export function createThreeResources() {
-  const canvas = document.createElement('canvas');
-  _.each(['width', 'height'], (key) => canvas[key] = '1000px');
+  const canvas = createCanvas();
   return {
     [C.SCENE]: new THREE.Scene(),
     [C.CAMERA]: new THREE.PerspectiveCamera(),
@@ -53,4 +52,24 @@ export function addBoxToScene(instance, name = '') {
   mesh.name = name;
   instance.getResource(C.SCENE).add(mesh);
   return mesh;
+}
+
+export function createCanvas() {
+  const size = 1000;
+  const canvas = document.createElement('canvas');
+
+  canvas.getBoundingClientRect = jest.fn();
+  canvas.getBoundingClientRect.mockReturnValue({
+    left: 0,
+    top: 0
+  });
+
+  _.each(['width', 'height'], (key) => { canvas[key] = size; });
+  _.each(['clientWidth', 'clientHeight'], (key) => {
+    Object.defineProperty(canvas, key, {
+      get: jest.fn(() => size),
+    });
+  });
+
+  return canvas;
 }
